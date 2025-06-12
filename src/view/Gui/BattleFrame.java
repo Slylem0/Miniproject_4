@@ -40,7 +40,7 @@ public class BattleFrame extends JFrame implements View {
         // ALL THE CONFIGURATIONS
         setTitle("Batalla Pokémon");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 800);
         setLayout(new BorderLayout());
 
         // MAIN PANEL INITIAL
@@ -82,30 +82,55 @@ public class BattleFrame extends JFrame implements View {
 
 
         // Panel de control (abajo)
-        JPanel controlPanel = new JPanel(new BorderLayout());
 
-        // Panel de botones de ataque
-        JPanel attackButtonsPanel = new JPanel(new GridLayout(2, 2));
+        // Panel de control (abajo) - LAYOUT CORREGIDO
+        JPanel controlPanel = new JPanel(new BorderLayout());
+        controlPanel.setPreferredSize(new Dimension(1000, 250)); // Dar altura específica
+
+// Panel superior de botones
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+
+// Panel de botones de ataque
+        JPanel attackButtonsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         attackButtons = new JButton[4];
         for (int i = 0; i < 4; i++) {
             attackButtons[i] = new JButton("Ataque " + (i + 1));
+            attackButtons[i].setPreferredSize(new Dimension(120, 40));
             attackButtonsPanel.add(attackButtons[i]);
         }
 
-        // Botón de cambio de Pokémon
+// Botón de cambio de Pokémon
         switchPokemonButton = new JButton("Cambiar Pokémon");
+        switchPokemonButton.setPreferredSize(new Dimension(150, 85));
 
-        // Log de batalla
-        battleLog = new JTextArea(5, 40);
+// Organizar botones
+        buttonPanel.add(attackButtonsPanel, BorderLayout.CENTER);
+        buttonPanel.add(switchPokemonButton, BorderLayout.EAST);
+        buttonPanel.setPreferredSize(new Dimension(1000, 100));
+
+// Log de batalla con tamaño fijo
+        battleLog = new JTextArea(8, 40); // Aumentar filas visibles
         battleLog.setEditable(false);
+        battleLog.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        battleLog.setBackground(Color.WHITE);
+        battleLog.setBorder(BorderFactory.createLoweredBevelBorder());
+
+
+
         JScrollPane scrollPane = new JScrollPane(battleLog);
+        scrollPane.setPreferredSize(new Dimension(1000, 150)); // Tamaño fijo
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        controlPanel.add(attackButtonsPanel, BorderLayout.CENTER);
-        controlPanel.add(switchPokemonButton, BorderLayout.EAST);
+// Agregar componentes al panel de control
+        controlPanel.add(buttonPanel, BorderLayout.NORTH);
+        controlPanel.add(scrollPane, BorderLayout.CENTER);
 
+// Agregar al frame principal
         add(battlePanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
 
+// Asegurar que el frame tenga el tamaño correcto
+        setMinimumSize(new Dimension(1000, 800));
 
 
         // start of battle
@@ -120,7 +145,7 @@ private void ejecutarAtaque(int attackIndex) {
 
     if (attackIndex >= attacker.getAttacks().size()) {
         battleLog.append("¡Ataque no disponible!\n");
-        actualizarInterfaz();
+        scrollToBottom();
         return;
     }
 
@@ -128,20 +153,22 @@ private void ejecutarAtaque(int attackIndex) {
     int damage = controller.BattleManager.calculateDamage(attack, attacker, defender);
     defender.receiveDamage(damage);
 
-    battleLog.append(String.format("%s usa %s y causa %d de daño!\n",
-            attacker.getName(), attack.getName(), damage));
+    // MENSAJE DE ATAQUE MÁS CLARO
+    battleLog.append(String.format("%s usa %s y causa %d de daño a %s!\n",
+            attacker.getName(), attack.getName(), damage, defender.getName()));
+
+    battleLog.append(String.format("%s tiene ahora %d HP restantes.\n",
+            defender.getName(), defender.getHealthPoints()));
 
     // Actualizar la interfaz
     actualizarInterfaz();
+    scrollToBottom();
 
-
+    // Verificar si la batalla continúa
     if (!verificarEstadoBatalla()) {
-
         cambiarTurno();
     }
 
-    battleLog.revalidate();
-    battleLog.repaint();
 }
 
 private void cambiarTurno() {
@@ -171,35 +198,40 @@ private void actualizarControles() {
         Pokemon pokemonActual = isEntrenador1Turn ? pokemon1 : pokemon2;
         if (i < pokemonActual.getAttacks().size()) {
             Attack attack = pokemonActual.getAttacks().get(i);
-            attackButtons[i].setText(attack.getName() + " " + attack.getPower() + " " + attack.getDamageType());
+            attackButtons[i].setText(attack.getName() + " (" + attack.getPower() + ")");
             attackButtons[i].setEnabled(esJugadorActual);
         } else {
+            attackButtons[i].setText("N/A");
             attackButtons[i].setEnabled(false);
         }
     }
 
-
     switchPokemonButton.setEnabled(esJugadorActual);
 
+    // SOLO agregar mensaje de turno si no es la inicialización
+    if (pokemon1 != null && pokemon2 != null) {
+        battleLog.append("\n--- Turno de " + (isEntrenador1Turn ? entrenador1.getName() : entrenador2.getName()) + " ---\n");
+        scrollToBottom();
+    }
 
-    battleLog.append("\nTurno de " + (isEntrenador1Turn ? entrenador1.getName() : entrenador2.getName()) + "\n");
 }
 
     private void cambiarPokemon() {
         Trainer currentTrainer = isEntrenador1Turn ? entrenador1 : entrenador2;
         Pokemon newPokemon = selectInitialPokemon(currentTrainer);
-        
+
         if (newPokemon != null) {
             if (isEntrenador1Turn) {
                 pokemon1 = newPokemon;
             } else {
                 pokemon2 = newPokemon;
             }
-            
-            battleLog.append(String.format("%s cambia a %s!\n", 
-                currentTrainer.getName(), newPokemon.getName()));
-            
+
+            battleLog.append(String.format("%s cambia a %s! (%d HP)\n",
+                    currentTrainer.getName(), newPokemon.getName(), newPokemon.getHealthPoints()));
+
             actualizarInterfaz();
+            scrollToBottom();
             cambiarTurno();
         }
     }
@@ -253,9 +285,15 @@ private void actualizarControles() {
     private void iniciarBatalla() {
         pokemon1 = selectInitialPokemon(entrenador1);
         pokemon2 = selectInitialPokemon(entrenador2);
+
+        battleLog.append("=== ¡LA BATALLA HA COMENZADO! ===\n");
+        battleLog.append(String.format("%s envía a %s! (%d HP)\n",
+                entrenador1.getName(), pokemon1.getName(), pokemon1.getHealthPoints()));
+        battleLog.append(String.format("%s envía a %s! (%d HP)\n",
+                entrenador2.getName(), pokemon2.getName(), pokemon2.getHealthPoints()));
+
         actualizarInterfaz();
-        battleLog.append("¡La batalla ha comenzado!\n");
-        actualizarControles();
+        scrollToBottom();
     }
 
     private Pokemon selectInitialPokemon(Trainer trainer) {
@@ -296,6 +334,12 @@ private void setupListeners() {
         cambiarPokemon();
     });
 }
+
+private void scrollToBottom() {
+        SwingUtilities.invokeLater(() -> {
+            battleLog.setCaretPosition(battleLog.getDocument().getLength());
+        });
+    }
 
 private void updatePokemonDisplay(JPanel panel, Pokemon pokemon, JProgressBar healthBar) {
 

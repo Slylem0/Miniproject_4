@@ -12,17 +12,13 @@ import java.util.*;
 import static controller.controller.Battle.hasAdvantage;
 
 public class controller {
-
     private BattleSetupFrame battleSetupFrame;
-
     public controller() {
         this.battleSetupFrame = new BattleSetupFrame();
 
         this.battleSetupFrame.setVisible(true);
 
     }
-
-
     public static class Battle {
         public static void startBattle(Trainer trainer1, Trainer trainer2, Scanner scanner) {
             Pokemon pokemon1 = choosePokemon(trainer1, scanner);
