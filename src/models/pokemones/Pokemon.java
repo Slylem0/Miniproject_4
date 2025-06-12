@@ -30,7 +30,7 @@ public class Pokemon extends Creature {
         return maxhealthPoints;
     }
 
-    public Name getName() {
+    public String getName() {
         return name;
     }
 

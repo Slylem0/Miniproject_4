@@ -27,10 +27,14 @@ public class BattleFrame extends JFrame implements View {
     private final JButton[] attackButtons;
     private final JButton switchPokemonButton;
     private boolean isEntrenador1Turn = true;
+    private final JButton saveGameButton;
+    private final JButton loadGameButton;
 
-    public BattleFrame(Trainer entrenador1, Trainer entrenador2) {
+    public BattleFrame(Trainer entrenador1, Trainer entrenador2, JButton saveGameButton, JButton loadGameButton) {
         this.entrenador1 = entrenador1;
         this.entrenador2 = entrenador2;
+        this.saveGameButton = saveGameButton;
+        this.loadGameButton = loadGameButton;
         ImageIcon trainer1Icon = scaleImage(TrainerImages.getTrainer1Image(), 150, 150);
         ImageIcon trainer2Icon = scaleImage(TrainerImages.getTrainer2Image(), 150, 150);
 
@@ -87,10 +91,10 @@ public class BattleFrame extends JFrame implements View {
         JPanel controlPanel = new JPanel(new BorderLayout());
         controlPanel.setPreferredSize(new Dimension(1000, 250)); // Dar altura específica
 
-// Panel superior de botones
+        // Panel superior de botones
         JPanel buttonPanel = new JPanel(new BorderLayout());
 
-// Panel de botones de ataque
+        // Panel de botones de ataque
         JPanel attackButtonsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         attackButtons = new JButton[4];
         for (int i = 0; i < 4; i++) {
@@ -99,16 +103,16 @@ public class BattleFrame extends JFrame implements View {
             attackButtonsPanel.add(attackButtons[i]);
         }
 
-// Botón de cambio de Pokémon
+        // Botón de cambio de Pokémon
         switchPokemonButton = new JButton("Cambiar Pokémon");
         switchPokemonButton.setPreferredSize(new Dimension(150, 85));
 
-// Organizar botones
+        // Organizar botones
         buttonPanel.add(attackButtonsPanel, BorderLayout.CENTER);
         buttonPanel.add(switchPokemonButton, BorderLayout.EAST);
         buttonPanel.setPreferredSize(new Dimension(1000, 100));
 
-// Log de batalla con tamaño fijo
+        // Log de batalla con tamaño fijo
         battleLog = new JTextArea(8, 40); // Aumentar filas visibles
         battleLog.setEditable(false);
         battleLog.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
@@ -121,16 +125,34 @@ public class BattleFrame extends JFrame implements View {
         scrollPane.setPreferredSize(new Dimension(1000, 150)); // Tamaño fijo
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-// Agregar componentes al panel de control
+        // Agregar componentes al panel de control
         controlPanel.add(buttonPanel, BorderLayout.NORTH);
         controlPanel.add(scrollPane, BorderLayout.CENTER);
 
-// Agregar al frame principal
+        // Agregar al frame principal
         add(battlePanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
 
-// Asegurar que el frame tenga el tamaño correcto
+        // Asegurar que el frame tenga el tamaño correcto
         setMinimumSize(new Dimension(1000, 800));
+
+        // Panel de botones adicionales
+        JPanel extraButtonsPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        saveGameButton = new JButton("Guardar Partida");
+        loadGameButton = new JButton("Cargar Partida");
+        saveGameButton.setPreferredSize(new Dimension(150, 40));
+        loadGameButton.setPreferredSize(new Dimension(150, 40));
+
+        extraButtonsPanel.add(saveGameButton);
+        extraButtonsPanel.add(loadGameButton);
+
+        // Modificar el buttonPanel para incluir los nuevos botones:
+        JPanel rightButtonsPanel = new JPanel(new BorderLayout());
+        rightButtonsPanel.add(switchPokemonButton, BorderLayout.NORTH);
+        rightButtonsPanel.add(extraButtonsPanel, BorderLayout.CENTER);
+
+        buttonPanel.add(attackButtonsPanel, BorderLayout.CENTER);
+        buttonPanel.add(rightButtonsPanel, BorderLayout.EAST); // Cambiar esta línea
 
 
         // start of battle
@@ -367,4 +389,5 @@ private void updatePokemonDisplay(JPanel panel, Pokemon pokemon, JProgressBar he
         healthBar.setForeground(Color.RED);
     }
 }
+
 }

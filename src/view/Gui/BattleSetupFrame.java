@@ -67,6 +67,8 @@ public class BattleSetupFrame extends JFrame {
         setupListeners();
     }
 
+
+
     private void setupListeners() {
         assignTeamsButton.addActionListener(e -> {
             if (trainer1Field.getText().trim().isEmpty() || trainer2Field.getText().trim().isEmpty()) {
