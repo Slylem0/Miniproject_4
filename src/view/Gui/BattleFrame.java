@@ -30,6 +30,7 @@ public class BattleFrame extends JFrame implements View {
     private boolean isEntrenador1Turn = true;
     private final JButton saveButton; // Nuevo botón
 
+
     public BattleFrame(Trainer entrenador1, Trainer entrenador2) {
         this.entrenador1 = entrenador1;
         this.entrenador2 = entrenador2;
