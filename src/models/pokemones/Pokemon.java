@@ -85,4 +85,23 @@ public class Pokemon extends Creature {
     public String toString() {
         return name.toString();
     }
+
+    public void setHealthPoints(int hp) {
+        this.healthPoints = hp;
+    }
+
+    public void setMaxHealthPoints(int maxHP) {
+        this.maxhealthPoints = maxHP;
+        // Asegurar que HP actual no excede el máximo
+        if (this.healthPoints > maxHP) {
+            this.healthPoints = maxHP;
+        }
+    }
+
+
+    public String getType() {
+        return this.name.getType();
+    }
+
+
 }

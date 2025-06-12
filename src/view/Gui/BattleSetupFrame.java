@@ -2,6 +2,8 @@ package view.Gui;
 
 import controller.controller;
 import models.entrenadores.Trainer;
+import models.files.saves;
+import models.pokemones.Pokemon;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +19,8 @@ public class BattleSetupFrame extends JFrame {
     private Trainer entrenador1;
     private Trainer entrenador2;
     private BiConsumer<String, String> onTeamsAssigned;
+    private final JButton loadButton;
+    private final JButton viewPokemonsButton; // Nuevo botón
 
     public BattleSetupFrame() {
         // Configuración básica del frame
@@ -53,6 +57,11 @@ public class BattleSetupFrame extends JFrame {
         JPanel bottomPanel = new JPanel(new FlowLayout());
         assignTeamsButton = new JButton("Asignar Equipos Aleatorios");
         startBattleButton = new JButton("¡Comenzar Batalla!");
+        loadButton = new JButton("Cargar Partida");
+        viewPokemonsButton = new JButton("Ver Pokémons");
+        bottomPanel.add(viewPokemonsButton); // Agregarlo al panel de botones
+
+        bottomPanel.add(loadButton);
         startBattleButton.setEnabled(false);
 
         bottomPanel.add(assignTeamsButton);
@@ -87,6 +96,45 @@ public class BattleSetupFrame extends JFrame {
         startBattleButton.addActionListener(e -> {
             iniciarBatalla();
         });
+        loadButton.addActionListener(e -> cargarPartida());
+        viewPokemonsButton.addActionListener(e -> PokemonCatalogFrame.showCatalog());
+    }
+
+    private void cargarPartida() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try {
+                java.io.File file = fileChooser.getSelectedFile();
+                Trainer[] entrenadores = saves.cargarEstadoJuego(file.getAbsolutePath());
+
+                if (entrenadores != null) {
+                    entrenador1 = entrenadores[0];
+                    entrenador2 = entrenadores[1];
+
+                    // Actualizar interfaz
+                    trainer1Field.setText(entrenador1.getName());
+                    trainer2Field.setText(entrenador2.getName());
+
+                    team1Area.setText("Equipo de " + entrenador1.getName() + ":\n");
+                    for (Pokemon p : entrenador1.getTeam()) {
+                        team1Area.append("- " + p.getName() + " (HP: " + p.getHealthPoints() + "/" + p.getMaxHealthPoints() + ")\n");
+                    }
+
+                    team2Area.setText("Equipo de " + entrenador2.getName() + ":\n");
+                    for (Pokemon p : entrenador2.getTeam()) {
+                        team2Area.append("- " + p.getName() + " (HP: " + p.getHealthPoints() + "/" + p.getMaxHealthPoints() + ")\n");
+                    }
+
+                    startBattleButton.setEnabled(true);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Error al cargar la partida: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void asignarEquiposAleatorios() {

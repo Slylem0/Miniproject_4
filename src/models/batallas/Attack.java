@@ -11,9 +11,9 @@ public class Attack {
     private String type;
 
     //builder
-    public Attack(String name, String type, String damageType, int power) {
+    public Attack(String name, String type, DamageType damageType, int power) {
         this.name = name;
-        this.damageType = DamageType.valueOf(damageType.toUpperCase());
+        this.damageType = damageType;
         this.power = power;
         this.type = type;
     }
