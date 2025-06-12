@@ -8,6 +8,7 @@ import models.batallas.Attack;
 import models.entrenadores.Trainer;
 import models.pokemones.Pokemon;
 import view.View;
+import models.files.saves;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +20,7 @@ public class BattleFrame extends JFrame implements View {
     private final Trainer entrenador2;
     private Pokemon pokemon1;
     private Pokemon pokemon2;
-    private final JTextArea battleLog;
+    private JTextArea battleLog = null;
     private final JPanel pokemonPanel1;
     private final JPanel pokemonPanel2;
     private final JProgressBar healthBar1;
@@ -27,10 +28,12 @@ public class BattleFrame extends JFrame implements View {
     private final JButton[] attackButtons;
     private final JButton switchPokemonButton;
     private boolean isEntrenador1Turn = true;
+    private final JButton saveButton; // Nuevo botón
 
     public BattleFrame(Trainer entrenador1, Trainer entrenador2) {
         this.entrenador1 = entrenador1;
         this.entrenador2 = entrenador2;
+
         ImageIcon trainer1Icon = scaleImage(TrainerImages.getTrainer1Image(), 150, 150);
         ImageIcon trainer2Icon = scaleImage(TrainerImages.getTrainer2Image(), 150, 150);
 
@@ -68,6 +71,8 @@ public class BattleFrame extends JFrame implements View {
         battlePanel.add(pokemonPanel1, gbc);
 
 
+
+
         //AQUIIIIII
 
         gbc.gridx = 0;
@@ -81,30 +86,68 @@ public class BattleFrame extends JFrame implements View {
         battlePanel.add(trainer1Label, gbc);
 
 
-        // Panel de control (abajo)
+        // Panel de control (abajo) - LAYOUT CORREGIDO
         JPanel controlPanel = new JPanel(new BorderLayout());
+        controlPanel.setPreferredSize(new Dimension(1000, 250)); // Dar altura específica
 
-        // Panel de botones de ataque
-        JPanel attackButtonsPanel = new JPanel(new GridLayout(2, 2));
+    // Panel superior de botones
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+
+// Panel de botones de ataque
+        JPanel attackButtonsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         attackButtons = new JButton[4];
         for (int i = 0; i < 4; i++) {
             attackButtons[i] = new JButton("Ataque " + (i + 1));
+            attackButtons[i].setPreferredSize(new Dimension(120, 40));
             attackButtonsPanel.add(attackButtons[i]);
         }
 
+        saveButton = new JButton("Guardar Partida");
+        saveButton.setPreferredSize(new Dimension(150, 85));
+        // Agregar botón de guardar al panel de botones
+        buttonPanel.add(saveButton, BorderLayout.WEST);
+        // Configurar el botón de guardar
+        saveButton.addActionListener(e -> {
+            String fileName = JOptionPane.showInputDialog(this, "Ingrese el nombre del archivo para guardar:");
+            if (fileName != null && !fileName.trim().isEmpty()) {
+                saves.guardarEstadoJuego(fileName + ".txt", entrenador1, entrenador2);
+                battleLog.append("Partida guardada en " + fileName + ".txt\n");
+            } else {
+                battleLog.append("Nombre de archivo inválido. No se guardó la partida.\n");
+            }
+        });
+
+
         // Botón de cambio de Pokémon
         switchPokemonButton = new JButton("Cambiar Pokémon");
+        switchPokemonButton.setPreferredSize(new Dimension(150, 85));
 
-        // Log de batalla
-        battleLog = new JTextArea(5, 40);
+        // Organizar botones
+        buttonPanel.add(attackButtonsPanel, BorderLayout.CENTER);
+        buttonPanel.add(switchPokemonButton, BorderLayout.EAST);
+        buttonPanel.setPreferredSize(new Dimension(1000, 100));
+
+        // Log de batalla con tamaño fijo
+        battleLog = new JTextArea(8, 40); // Aumentar filas visibles
         battleLog.setEditable(false);
+        battleLog.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        battleLog.setBackground(Color.WHITE);
+        battleLog.setBorder(BorderFactory.createLoweredBevelBorder());
+
         JScrollPane scrollPane = new JScrollPane(battleLog);
+        scrollPane.setPreferredSize(new Dimension(1000, 150)); // Tamaño fijo
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        // Agregar componentes al panel de control
+        controlPanel.add(buttonPanel, BorderLayout.NORTH);
+        controlPanel.add(scrollPane, BorderLayout.CENTER);
 
-        controlPanel.add(attackButtonsPanel, BorderLayout.CENTER);
-        controlPanel.add(switchPokemonButton, BorderLayout.EAST);
-
+        // Agregar al frame principal
         add(battlePanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
+
+        // Asegurar que el frame tenga el tamaño correcto
+        setMinimumSize(new Dimension(1000, 800));
+
 
 
 
