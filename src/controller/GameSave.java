@@ -24,6 +24,7 @@ public class GameSave {
         public List<Integer> trainer1HP;
         public List<Integer> trainer2HP;
 
+
         public SaveData() {
             trainer1Team = new ArrayList<>();
             trainer2Team = new ArrayList<>();
@@ -59,12 +60,12 @@ public class GameSave {
 
             // Guardar información de todos los pokémon
             for (Pokemon p : trainer1.getTeam()) {
-                saveData.trainer1Team.add(p.getName());
+                saveData.trainer1Team.add(p.getName().toString());
                 saveData.trainer1HP.add(p.getHealthPoints());
             }
 
             for (Pokemon p : trainer2.getTeam()) {
-                saveData.trainer2Team.add(p.getName());
+                saveData.trainer2Team.add(p.getName().toString());
                 saveData.trainer2HP.add(p.getHealthPoints());
             }
 

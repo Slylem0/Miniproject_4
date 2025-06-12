@@ -30,11 +30,10 @@ public class BattleFrame extends JFrame implements View {
     private final JButton saveGameButton;
     private final JButton loadGameButton;
 
-    public BattleFrame(Trainer entrenador1, Trainer entrenador2, JButton saveGameButton, JButton loadGameButton) {
+    public BattleFrame(Trainer entrenador1, Trainer entrenador2) {
         this.entrenador1 = entrenador1;
         this.entrenador2 = entrenador2;
-        this.saveGameButton = saveGameButton;
-        this.loadGameButton = loadGameButton;
+
         ImageIcon trainer1Icon = scaleImage(TrainerImages.getTrainer1Image(), 150, 150);
         ImageIcon trainer2Icon = scaleImage(TrainerImages.getTrainer2Image(), 150, 150);
 
@@ -153,6 +152,8 @@ public class BattleFrame extends JFrame implements View {
 
         buttonPanel.add(attackButtonsPanel, BorderLayout.CENTER);
         buttonPanel.add(rightButtonsPanel, BorderLayout.EAST); // Cambiar esta línea
+
+
 
 
         // start of battle

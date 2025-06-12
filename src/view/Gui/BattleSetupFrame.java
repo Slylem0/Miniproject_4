@@ -14,8 +14,8 @@ public class BattleSetupFrame extends JFrame {
     private final JTextArea team2Area;
     private final JButton assignTeamsButton;
     private final JButton startBattleButton;
-    private Trainer entrenador1;
-    private Trainer entrenador2;
+    private static Trainer entrenador1;
+    private static Trainer entrenador2;
     private BiConsumer<String, String> onTeamsAssigned;
 
     public BattleSetupFrame() {
@@ -115,12 +115,7 @@ public class BattleSetupFrame extends JFrame {
         this.dispose();
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new BattleSetupFrame().setVisible(true);
-        });
-    }
-    // En src/view/Gui/BattleSetupFrame.java
+
 
     public void setOnTeamsAssigned(BiConsumer<String, String> listener) {
         this.onTeamsAssigned = listener;
